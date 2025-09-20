@@ -7,6 +7,7 @@ const gameConfig = {
 };
 
 function displayWelcome() {
+  console.log('');
   console.log('Welcome to the Number Guessing Game!');
   console.log("I'm thinking of a number between 1 and 100.");
   console.log('You have 5 chances to guess the correct number.');
@@ -43,8 +44,10 @@ async function playGame(difficulty) {
   const maxChances = gameConfig[difficulty];
   let attempts = 0;
 
+  console.log('');
   console.log(`Great! You have selected the ${difficulty} difficulty level.`);
   console.log("Let's start the game!");
+  console.log('');
 
   while (attempts < maxChances) {
     const question = {
@@ -74,8 +77,10 @@ async function playGame(difficulty) {
         );
         return;
       } else if (userGuess > targetNumber) {
+        console.log('');
         console.log(`Incorrect! The number is less than ${userGuess}.`);
       } else {
+        console.log('');
         console.log(`Incorrect! The number is greater than ${userGuess}.`);
       }
 
@@ -92,13 +97,42 @@ async function playGame(difficulty) {
   console.log('');
   console.log(`Game Over! You've used all ${maxChances} chances.`);
   console.log(`The correct number was: ${targetNumber}`);
+  console.log('');
+}
+
+async function askPlayAgain() {
+  const question = {
+    type: 'confirm',
+    name: 'playAgain',
+    message: 'Do you want to play again?',
+    default: true,
+  };
+
+  try {
+    const answer = await inquirer.prompt(question);
+    return answer.playAgain;
+  } catch (error) {
+    console.error('Error:', error);
+    process.exit(1);
+  }
 }
 
 async function startGame() {
   displayWelcome();
 
-  const selectedDifficulty = await selectDifficulty();
-  await playGame(selectedDifficulty);
+  do {
+    const selectedDifficulty = await selectDifficulty();
+    await playGame(selectedDifficulty);
+
+    const playAgain = await askPlayAgain();
+    if (!playAgain) {
+      console.log('');
+      console.log('Thanks for playing!');
+      console.log('');
+
+      break;
+    }
+  } while (true);
 }
 
 startGame().catch((error) => {
